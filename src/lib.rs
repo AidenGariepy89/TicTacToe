@@ -34,15 +34,24 @@ pub fn run(board: &mut Board, turn: Piece) -> LoopState {
     board.print();
 
     match board.win_check() {
-        Piece::Empty => { },
-        Piece::X => {
-            println!("X wins!");
+        board::EndGame::Winner(winner) => {
+            match winner {
+                Piece::X => {
+                    println!("X wins!");
+                    return LoopState::Exit;
+                },
+                Piece::O => {
+                    println!("O wins!");
+                    return LoopState::Exit;
+                },
+                _ => { },
+            }
+        },
+        board::EndGame::CatsGame => {
+            println!("Cat's game!");
             return LoopState::Exit;
         },
-        Piece::O => {
-            println!("O wins!");
-            return LoopState::Exit;
-        }
+        _ => { },
     }
 
     let mut input = String::new();

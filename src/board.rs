@@ -46,6 +46,12 @@ impl Piece {
     }
 }
 
+pub enum EndGame {
+    Winner(Piece),
+    CatsGame,
+    NotDone,
+}
+
 pub struct Board {
     spaces: [Piece; 9],
 }
@@ -84,7 +90,7 @@ impl Board {
         return Ok(());
     }
 
-    pub fn win_check(&self) -> Piece {
+    pub fn win_check(&self) -> EndGame {
         let mut xs: u16 = 0b0_0000_0000;
         let mut os: u16 = 0b0_0000_0000;
 
@@ -99,11 +105,13 @@ impl Board {
         }
 
         for state in WIN_STATES {
-            if xs & state == state { return Piece::X; }
-            if os & state == state { return Piece::O; }
+            if xs & state == state { return EndGame::Winner(Piece::X); }
+            if os & state == state { return EndGame::Winner(Piece::O); }
         }
 
-        return Piece::Empty;
+        if xs | os == 0b1_1111_1111 { return EndGame::CatsGame; }
+
+        return EndGame::NotDone;
     }
 }
 
