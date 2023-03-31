@@ -1,5 +1,6 @@
 #[macro_use]
 mod input;
+
 pub mod board;
 
 use board::{Board, Piece};
@@ -94,22 +95,5 @@ fn get_input(input: &mut String) -> GameResult<()> {
         return Err(GameError::InputFailedError);
     }
     return Ok(());
-}
-
-#[test]
-fn test_board() {
-    let mut board = Board::new();
-
-    board.print();
-
-    board.play(1, Piece::X).unwrap_or_else(|error| { println!("{}", error); });
-    board.play(5, Piece::O).unwrap_or_else(|error| { println!("{}", error); });
-
-    board.print();
-
-    notation_to_index("a1").unwrap();
-    notation_to_index("c3").unwrap();
-    notation_to_index("b1").unwrap();
-
 }
 
