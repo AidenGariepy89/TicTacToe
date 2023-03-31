@@ -2,6 +2,7 @@
 mod input;
 
 pub mod board;
+pub mod ultiboard;
 
 use board::{Board, Piece};
 use std::fmt;
