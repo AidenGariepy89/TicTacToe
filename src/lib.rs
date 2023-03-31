@@ -59,7 +59,7 @@ pub fn run(board: &mut Board, turn: Piece) -> LoopState {
 
     if input.trim() == "q" { return LoopState::Exit; }
 
-    match notation_to_index(&input) {
+    match notation_to_index(input.trim()) {
         Ok(index) => {
             board.play(index, turn).unwrap_or_else(|error| { println!("{}", error); });
         },
