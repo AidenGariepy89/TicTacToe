@@ -73,12 +73,15 @@ pub fn run(board: &mut Board, turn: Piece) -> LoopState {
     return LoopState::Continue;
 }
 
-/// # Panics
-/// Subtraction that results in negative number no work yet
 fn notation_to_index(input: &str) -> GameResult<usize> {
     let mut it = input.chars();
-    let row = it.next().unwrap_or_else(|| 'z') as usize - 'a' as usize;
-    let col = it.next().unwrap_or_else(|| '9') as usize - '1' as usize;
+    let row = it.next().unwrap_or_else(|| 'z') as usize;
+    let col = it.next().unwrap_or_else(|| '9') as usize;
+    
+    if row < 'a' as usize || col < '1' as usize { return Err(GameError::InvalidInputError); }
+
+    let row = row - 'a' as usize;
+    let col = col - '1' as usize;
 
     if row > board::ROW_LEN || col > board::ROW_LEN { return Err(GameError::InvalidInputError); }
 
