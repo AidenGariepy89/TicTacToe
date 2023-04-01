@@ -81,7 +81,14 @@ pub fn run(board: &mut UltimateBoard) -> LoopState {
 
     match notation_to_usize(&input) {
         Ok(index) => {
-            board.play(index).unwrap();
+            if let Err(error) = board.play(index) {
+                println!("{}", error);
+
+                #[allow(unused_variables)]
+                let input = get_input();
+
+                return LoopState::Continue;
+            }
 
             if let BoardState::InPlay = board.get_board_state(index) {
                 board.focus(BoardSelection::Selected(index)).unwrap();

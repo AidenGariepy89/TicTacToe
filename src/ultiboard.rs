@@ -1,6 +1,7 @@
 // Constants
 
 use colored::*;
+use std::fmt;
 
 // Starting at index 0
 pub const BOARD_LEN: usize = 8;
@@ -58,6 +59,15 @@ pub enum UltiError {
 pub type UltiResult<T> = Result<T, UltiError>;
 
 // Type Implementations
+
+impl fmt::Display for UltiError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            UltiError::SpaceTakenError => write!(f, "There is already a piece there!"),
+            UltiError::OutOfBoundsError => write!(f, "That space does not exist!"),
+        }
+    }
+}
 
 impl Piece {
     pub fn to_colored_string(&self) -> ColoredString {
