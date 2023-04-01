@@ -22,7 +22,7 @@ impl fmt::Display for GameError {
     }
 }
 
-pub fn run(board: &mut UltimateBoard, turn: Piece) -> LoopState {
+pub fn run(board: &mut UltimateBoard) -> LoopState {
     clearscr!();
     println!("Welcome to {} Please input to make your move! {}", "Ultimate TicTacToe!".green().bold(), "'q' to quit".red());
 
@@ -46,6 +46,27 @@ pub fn run(board: &mut UltimateBoard, turn: Piece) -> LoopState {
             }
         }
     }
+
+    println!("Make your move, {}!", board.get_turn().to_char());
+    let input = get_input();
+
+    if input.trim() == "q" { return LoopState::Exit; }
+
+    match notation_to_usize(&input) {
+        Ok(index) => {
+            board.play(index).unwrap();
+        }
+        Err(error) => {
+            println!("{}", error);
+
+            #[allow(unused_variables)]
+            let input = get_input();
+
+            return LoopState::Continue;
+        }
+    }
+
+    board.next_turn();
 
     return LoopState::Continue;
 }

@@ -3,7 +3,6 @@ use tictactoe::{
     board,
     board::Board,
     ultigame,
-    ultiboard,
     ultiboard::UltimateBoard,
 };
 
@@ -22,20 +21,13 @@ fn main() {
 }
 
 fn ultimate() {
-    use ultiboard::Piece;
     use ultigame::LoopState;
 
     let mut board = UltimateBoard::new();
     let mut result = ultigame::LoopState::Continue;
-    let mut turn = Piece::X;
 
     while let LoopState::Continue = result {
-        result = ultigame::run(&mut board, turn.clone());
-        turn = match turn {
-            Piece::X => Piece::O,
-            Piece::O => Piece::X,
-            _ => Piece::X,
-        };
+        result = ultigame::run(&mut board);
     }
 }
 

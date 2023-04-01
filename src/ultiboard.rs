@@ -20,6 +20,7 @@ pub struct UltimateBoard {
     boards: [Board; 9],
     state: BoardState,
     active_board: BoardSelection,
+    turn: Piece,
 }
 
 struct Board {
@@ -57,7 +58,7 @@ pub type UltiResult<T> = Result<T, UltiError>;
 // Type Implementations
 
 impl Piece {
-    fn to_char(&self) -> char {
+    pub fn to_char(&self) -> char {
         match self {
             Piece::X => 'X',
             Piece::O => 'O',
@@ -92,6 +93,7 @@ impl UltimateBoard {
         Self {
             active_board: BoardSelection::Unselected,
             state: BoardState::InPlay,
+            turn: Piece::X,
             boards: [
                 Board::new(),
                 Board::new(),
@@ -123,7 +125,7 @@ impl UltimateBoard {
 
     pub fn get_focus(&self) -> &BoardSelection { return &self.active_board; }
 
-    pub fn play(&mut self, space: usize, piece: Piece) -> UltiResult<()> {
+    pub fn play(&mut self, space: usize) -> UltiResult<()> {
         if space > BOARD_LEN { return Err(UltiError::OutOfBoundsError); }
 
         let mut index = 0;
@@ -135,7 +137,17 @@ impl UltimateBoard {
             },
         }
 
-        return self.boards[index].play(space, piece);
+        return self.boards[index].play(space, self.turn);
+    }
+
+    pub fn get_turn(&self) -> Piece { self.turn }
+
+    pub fn next_turn(&mut self) {
+        self.turn = match self.turn {
+            Piece::X => Piece::O,
+            Piece::O => Piece::X,
+            _ => Piece::X,
+        };
     }
 
     pub fn print(&self) {
