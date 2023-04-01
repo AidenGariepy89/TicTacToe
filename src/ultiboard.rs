@@ -1,5 +1,7 @@
 // Constants
 
+use colored::*;
+
 // Starting at index 0
 pub const BOARD_LEN: usize = 8;
 pub const ROW_LEN: usize = 2;
@@ -58,11 +60,11 @@ pub type UltiResult<T> = Result<T, UltiError>;
 // Type Implementations
 
 impl Piece {
-    pub fn to_char(&self) -> char {
+    pub fn to_colored_string(&self) -> ColoredString {
         match self {
-            Piece::X => 'X',
-            Piece::O => 'O',
-            Piece::Empty => ' ',
+            Piece::X => "X".bright_red(),
+            Piece::O => "O".green(),
+            Piece::Empty => " ".normal(),
         }
     }
 }
@@ -101,8 +103,6 @@ impl Board {
                 Piece::O => { os ^= 0b0_0000_0001; },
                 Piece::Empty => { },
             }
-            //println!("X: {:9b}", xs);
-            //println!("O: {:9b}", os);
         }
 
         for state in WIN_STATES {
@@ -206,7 +206,7 @@ impl UltimateBoard {
         return self.boards[index].get_state();
     }
 
-    pub fn win_check(&mut self) {
+    pub fn win_check(&mut self) -> BoardState {
         for board in &mut self.boards {
             if let BoardState::InPlay = board.state {
                 board.win_check();
@@ -221,6 +221,30 @@ impl UltimateBoard {
                 },
             }
         }
+
+        let mut xg: u16 = 0b0_0000_0000;
+        let mut og: u16 = 0b0_0000_0000;
+
+        for i in 0..self.boards.len() {
+            xg <<= 1;
+            og <<= 1;
+            if let BoardState::Winner(piece) = self.boards[i].state {
+                match piece {
+                    Piece::X => { xg ^= 0b0_0000_0001; },
+                    Piece::O => { og ^= 0b0_0000_0001; },
+                    Piece::Empty => { },
+                }
+            }
+        }
+
+        for state in WIN_STATES {
+            if xg & state == state { return BoardState::Winner(Piece::X); }
+            if og & state == state { return BoardState::Winner(Piece::O); }
+        }
+
+        if xg | og == 0b1_1111_1111 { return BoardState::CatsGame; }
+
+        return BoardState::InPlay;
     }
 
     pub fn print(&self) {
@@ -261,87 +285,87 @@ impl UltimateBoard {
             |  |_____|_____|_____|  |  |_____|_____|_____|  |  |_____|_____|_____|  |
             |_______________________|_______________________|_______________________|
             ",
-            self.boards[0].spaces[0].to_char(),
-            self.boards[0].spaces[1].to_char(),
-            self.boards[0].spaces[2].to_char(),
-            self.boards[1].spaces[0].to_char(),
-            self.boards[1].spaces[1].to_char(),
-            self.boards[1].spaces[2].to_char(),
-            self.boards[2].spaces[0].to_char(),
-            self.boards[2].spaces[1].to_char(),
-            self.boards[2].spaces[2].to_char(),
-            self.boards[0].spaces[3].to_char(),
-            self.boards[0].spaces[4].to_char(),
-            self.boards[0].spaces[5].to_char(),
-            self.boards[1].spaces[3].to_char(),
-            self.boards[1].spaces[4].to_char(),
-            self.boards[1].spaces[5].to_char(),
-            self.boards[2].spaces[3].to_char(),
-            self.boards[2].spaces[4].to_char(),
-            self.boards[2].spaces[5].to_char(),
-            self.boards[0].spaces[6].to_char(),
-            self.boards[0].spaces[7].to_char(),
-            self.boards[0].spaces[8].to_char(),
-            self.boards[1].spaces[6].to_char(),
-            self.boards[1].spaces[7].to_char(),
-            self.boards[1].spaces[8].to_char(),
-            self.boards[2].spaces[6].to_char(),
-            self.boards[2].spaces[7].to_char(),
-            self.boards[2].spaces[8].to_char(),
-            self.boards[3].spaces[0].to_char(),
-            self.boards[3].spaces[1].to_char(),
-            self.boards[3].spaces[2].to_char(),
-            self.boards[4].spaces[0].to_char(),
-            self.boards[4].spaces[1].to_char(),
-            self.boards[4].spaces[2].to_char(),
-            self.boards[5].spaces[0].to_char(),
-            self.boards[5].spaces[1].to_char(),
-            self.boards[5].spaces[2].to_char(),
-            self.boards[3].spaces[3].to_char(),
-            self.boards[3].spaces[4].to_char(),
-            self.boards[3].spaces[5].to_char(),
-            self.boards[4].spaces[3].to_char(),
-            self.boards[4].spaces[4].to_char(),
-            self.boards[4].spaces[5].to_char(),
-            self.boards[5].spaces[3].to_char(),
-            self.boards[5].spaces[4].to_char(),
-            self.boards[5].spaces[5].to_char(),
-            self.boards[3].spaces[6].to_char(),
-            self.boards[3].spaces[7].to_char(),
-            self.boards[3].spaces[8].to_char(),
-            self.boards[4].spaces[6].to_char(),
-            self.boards[4].spaces[7].to_char(),
-            self.boards[4].spaces[8].to_char(),
-            self.boards[5].spaces[6].to_char(),
-            self.boards[5].spaces[7].to_char(),
-            self.boards[5].spaces[8].to_char(),
-            self.boards[6].spaces[0].to_char(),
-            self.boards[6].spaces[1].to_char(),
-            self.boards[6].spaces[2].to_char(),
-            self.boards[7].spaces[0].to_char(),
-            self.boards[7].spaces[1].to_char(),
-            self.boards[7].spaces[2].to_char(),
-            self.boards[8].spaces[0].to_char(),
-            self.boards[8].spaces[1].to_char(),
-            self.boards[8].spaces[2].to_char(),
-            self.boards[6].spaces[3].to_char(),
-            self.boards[6].spaces[4].to_char(),
-            self.boards[6].spaces[5].to_char(),
-            self.boards[7].spaces[3].to_char(),
-            self.boards[7].spaces[4].to_char(),
-            self.boards[7].spaces[5].to_char(),
-            self.boards[8].spaces[3].to_char(),
-            self.boards[8].spaces[4].to_char(),
-            self.boards[8].spaces[5].to_char(),
-            self.boards[6].spaces[6].to_char(),
-            self.boards[6].spaces[7].to_char(),
-            self.boards[6].spaces[8].to_char(),
-            self.boards[7].spaces[6].to_char(),
-            self.boards[7].spaces[7].to_char(),
-            self.boards[7].spaces[8].to_char(),
-            self.boards[8].spaces[6].to_char(),
-            self.boards[8].spaces[7].to_char(),
-            self.boards[8].spaces[8].to_char(),
+            self.boards[0].spaces[0].to_colored_string(),
+            self.boards[0].spaces[1].to_colored_string(),
+            self.boards[0].spaces[2].to_colored_string(),
+            self.boards[1].spaces[0].to_colored_string(),
+            self.boards[1].spaces[1].to_colored_string(),
+            self.boards[1].spaces[2].to_colored_string(),
+            self.boards[2].spaces[0].to_colored_string(),
+            self.boards[2].spaces[1].to_colored_string(),
+            self.boards[2].spaces[2].to_colored_string(),
+            self.boards[0].spaces[3].to_colored_string(),
+            self.boards[0].spaces[4].to_colored_string(),
+            self.boards[0].spaces[5].to_colored_string(),
+            self.boards[1].spaces[3].to_colored_string(),
+            self.boards[1].spaces[4].to_colored_string(),
+            self.boards[1].spaces[5].to_colored_string(),
+            self.boards[2].spaces[3].to_colored_string(),
+            self.boards[2].spaces[4].to_colored_string(),
+            self.boards[2].spaces[5].to_colored_string(),
+            self.boards[0].spaces[6].to_colored_string(),
+            self.boards[0].spaces[7].to_colored_string(),
+            self.boards[0].spaces[8].to_colored_string(),
+            self.boards[1].spaces[6].to_colored_string(),
+            self.boards[1].spaces[7].to_colored_string(),
+            self.boards[1].spaces[8].to_colored_string(),
+            self.boards[2].spaces[6].to_colored_string(),
+            self.boards[2].spaces[7].to_colored_string(),
+            self.boards[2].spaces[8].to_colored_string(),
+            self.boards[3].spaces[0].to_colored_string(),
+            self.boards[3].spaces[1].to_colored_string(),
+            self.boards[3].spaces[2].to_colored_string(),
+            self.boards[4].spaces[0].to_colored_string(),
+            self.boards[4].spaces[1].to_colored_string(),
+            self.boards[4].spaces[2].to_colored_string(),
+            self.boards[5].spaces[0].to_colored_string(),
+            self.boards[5].spaces[1].to_colored_string(),
+            self.boards[5].spaces[2].to_colored_string(),
+            self.boards[3].spaces[3].to_colored_string(),
+            self.boards[3].spaces[4].to_colored_string(),
+            self.boards[3].spaces[5].to_colored_string(),
+            self.boards[4].spaces[3].to_colored_string(),
+            self.boards[4].spaces[4].to_colored_string(),
+            self.boards[4].spaces[5].to_colored_string(),
+            self.boards[5].spaces[3].to_colored_string(),
+            self.boards[5].spaces[4].to_colored_string(),
+            self.boards[5].spaces[5].to_colored_string(),
+            self.boards[3].spaces[6].to_colored_string(),
+            self.boards[3].spaces[7].to_colored_string(),
+            self.boards[3].spaces[8].to_colored_string(),
+            self.boards[4].spaces[6].to_colored_string(),
+            self.boards[4].spaces[7].to_colored_string(),
+            self.boards[4].spaces[8].to_colored_string(),
+            self.boards[5].spaces[6].to_colored_string(),
+            self.boards[5].spaces[7].to_colored_string(),
+            self.boards[5].spaces[8].to_colored_string(),
+            self.boards[6].spaces[0].to_colored_string(),
+            self.boards[6].spaces[1].to_colored_string(),
+            self.boards[6].spaces[2].to_colored_string(),
+            self.boards[7].spaces[0].to_colored_string(),
+            self.boards[7].spaces[1].to_colored_string(),
+            self.boards[7].spaces[2].to_colored_string(),
+            self.boards[8].spaces[0].to_colored_string(),
+            self.boards[8].spaces[1].to_colored_string(),
+            self.boards[8].spaces[2].to_colored_string(),
+            self.boards[6].spaces[3].to_colored_string(),
+            self.boards[6].spaces[4].to_colored_string(),
+            self.boards[6].spaces[5].to_colored_string(),
+            self.boards[7].spaces[3].to_colored_string(),
+            self.boards[7].spaces[4].to_colored_string(),
+            self.boards[7].spaces[5].to_colored_string(),
+            self.boards[8].spaces[3].to_colored_string(),
+            self.boards[8].spaces[4].to_colored_string(),
+            self.boards[8].spaces[5].to_colored_string(),
+            self.boards[6].spaces[6].to_colored_string(),
+            self.boards[6].spaces[7].to_colored_string(),
+            self.boards[6].spaces[8].to_colored_string(),
+            self.boards[7].spaces[6].to_colored_string(),
+            self.boards[7].spaces[7].to_colored_string(),
+            self.boards[7].spaces[8].to_colored_string(),
+            self.boards[8].spaces[6].to_colored_string(),
+            self.boards[8].spaces[7].to_colored_string(),
+            self.boards[8].spaces[8].to_colored_string(),
             );
     }
 }

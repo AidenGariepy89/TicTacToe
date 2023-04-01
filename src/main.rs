@@ -3,20 +3,34 @@ use tictactoe::{
     board,
     board::Board,
     ultigame,
-    ultiboard::UltimateBoard,
+    ultiboard::UltimateBoard, input::get_input,
 };
 
 enum Game {
     TicTacToe,
     Ultimate,
+    NoGame,
 }
 
 fn main() {
-    let game = Game::Ultimate;
+    loop {
+        let mut game = Game::NoGame;
 
-    match game {
-        Game::TicTacToe => { tictactoe(); },
-        Game::Ultimate => { ultimate(); },
+        println!("Would you like to play 'n'ormal TicTacToe, or 'u'ltimate TicTacToe?");
+        let input = get_input().to_lowercase();
+        let input = input.trim();
+
+        match input {
+            "n" => { game = Game::TicTacToe; },
+            "u" => { game = Game::Ultimate; },
+            _ => { },
+        }
+
+        match game {
+            Game::TicTacToe => { tictactoe(); },
+            Game::Ultimate => { ultimate(); },
+            Game::NoGame => { break; }
+        }
     }
 }
 

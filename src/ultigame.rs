@@ -1,4 +1,4 @@
-use crate::{ultiboard::{UltimateBoard, BoardSelection, self, BoardState}, input::get_input};
+use crate::{ultiboard::{UltimateBoard, BoardSelection, self, BoardState, Piece}, input::get_input};
 use std::fmt;
 use colored::*;
 
@@ -26,17 +26,38 @@ pub fn run(board: &mut UltimateBoard) -> LoopState {
     clearscr!();
     println!("Welcome to {} Please input to make your move! {}", "Ultimate TicTacToe!".green().bold(), "'q' to quit".red());
 
-    board.win_check();
-
     board.print();
+
+    match board.win_check() {
+        BoardState::Winner(piece) => {
+            match piece {
+                Piece::X => {
+                    println!("{}", "X Wins!".purple().bold());
+                    return LoopState::Exit;
+                },
+                Piece::O => {
+                    println!("{}", "O Wins!".green().bold());
+                    return LoopState::Exit;
+                },
+                _ => { },
+            }
+        },
+        BoardState::CatsGame => {
+            println!("{}", "Cat's game!".red().bold());
+            return LoopState::Exit;
+        },
+        _ => { },
+    }
 
     match board.get_focus() {
         BoardSelection::Selected(index) => {
-            println!("{} {}", "Current board:".green(), usize_to_notation(index.clone()));
+            println!("({}) {} {}", board.get_turn().to_colored_string(), "Current board:".green(), usize_to_notation(index.clone()));
         },
         BoardSelection::Unselected => {
-            println!("{}\n", "Select a board to play in.".magenta());
+            println!("({}) {}\n", board.get_turn().to_colored_string(), "Select a board to play in.".magenta());
             let input = get_input();
+
+            if input.to_lowercase().trim() == "q" { return LoopState::Exit; }
 
             match notation_to_usize(&input) {
                 Ok(index) => {
@@ -53,7 +74,7 @@ pub fn run(board: &mut UltimateBoard) -> LoopState {
         },
     }
 
-    println!("Make your move, {}!", board.get_turn().to_char());
+    //println!("Make your move, {}!", board.get_turn().to_char());
     let input = get_input();
 
     if input.trim() == "q" { return LoopState::Exit; }
@@ -84,6 +105,7 @@ pub fn run(board: &mut UltimateBoard) -> LoopState {
 }
 
 fn notation_to_usize(input: &str) -> GameResult<usize> {
+    let input = input.to_lowercase();
     let mut it = input.chars();
     let row = it.next().unwrap_or_else(|| 'z') as usize;
     let col = it.next().unwrap_or_else(|| '9') as usize;
@@ -109,9 +131,9 @@ fn usize_to_notation(input: usize) -> String {
         3 => String::from("B1"),
         4 => String::from("B2"),
         5 => String::from("B3"),
-        6 => String::from("C1"),
-        7 => String::from("C2"),
-        8 => String::from("C3"),
+        6 => String::from("c1"),
+        7 => String::from("c2"),
+        8 => String::from("c3"),
         _ => String::from("uh oh"),
     }
 }
