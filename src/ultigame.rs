@@ -1,4 +1,4 @@
-use crate::{ultiboard::{UltimateBoard, Piece, BoardSelection, self}, input::get_input};
+use crate::{ultiboard::{UltimateBoard, BoardSelection, self, BoardState}, input::get_input};
 use std::fmt;
 use colored::*;
 
@@ -26,25 +26,31 @@ pub fn run(board: &mut UltimateBoard) -> LoopState {
     clearscr!();
     println!("Welcome to {} Please input to make your move! {}", "Ultimate TicTacToe!".green().bold(), "'q' to quit".red());
 
+    board.win_check();
+
     board.print();
 
-    if let BoardSelection::Unselected = board.get_focus() {
-        println!("{}\n", "Select a board to play in.".magenta());
-        let input = get_input();
+    match board.get_focus() {
+        BoardSelection::Selected(index) => {
+            println!("{} {}", "Current board:".green(), usize_to_notation(index.clone()));
+        },
+        BoardSelection::Unselected => {
+            println!("{}\n", "Select a board to play in.".magenta());
+            let input = get_input();
 
-        match notation_to_usize(&input) {
-            Ok(index) => {
-                board.focus(BoardSelection::Selected(index)).unwrap();
-            },
-            Err(error) => {
-                println!("{}", error);
+            match notation_to_usize(&input) {
+                Ok(index) => {
+                    board.focus(BoardSelection::Selected(index)).unwrap();
+                },
+                Err(error) => {
+                    println!("{}", error);
 
-                #[allow(unused_variables)]
-                let input = get_input();
-
-                return LoopState::Continue;
+                    #[allow(unused_variables)]
+                    let input = get_input();
+                },
             }
-        }
+            return LoopState::Continue;
+        },
     }
 
     println!("Make your move, {}!", board.get_turn().to_char());
@@ -55,6 +61,12 @@ pub fn run(board: &mut UltimateBoard) -> LoopState {
     match notation_to_usize(&input) {
         Ok(index) => {
             board.play(index).unwrap();
+
+            if let BoardState::InPlay = board.get_board_state(index) {
+                board.focus(BoardSelection::Selected(index)).unwrap();
+            } else {
+                board.focus(BoardSelection::Unselected).unwrap();
+            }
         }
         Err(error) => {
             println!("{}", error);
@@ -88,6 +100,19 @@ fn notation_to_usize(input: &str) -> GameResult<usize> {
 }
 
 fn usize_to_notation(input: usize) -> String {
-    return String::from("Isn't finished yet");
+    // bad solution
+    
+    match input {
+        0 => String::from("A1"),
+        1 => String::from("A2"),
+        2 => String::from("A3"),
+        3 => String::from("B1"),
+        4 => String::from("B2"),
+        5 => String::from("B3"),
+        6 => String::from("C1"),
+        7 => String::from("C2"),
+        8 => String::from("C3"),
+        _ => String::from("uh oh"),
+    }
 }
 

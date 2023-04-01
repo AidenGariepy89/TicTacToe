@@ -18,7 +18,6 @@ const WIN_STATES: [u16; 8] = [
 
 pub struct UltimateBoard {
     boards: [Board; 9],
-    state: BoardState,
     active_board: BoardSelection,
     turn: Piece,
 }
@@ -36,7 +35,8 @@ pub enum Piece {
     Empty,
 }
 
-enum BoardState {
+#[derive(Clone, Copy)]
+pub enum BoardState {
     InPlay,
     Winner(Piece),
     CatsGame,
@@ -86,13 +86,55 @@ impl Board {
 
         return Ok(());
     }
+
+    fn get_state(&self) -> BoardState { self.state }
+
+    fn win_check(&mut self) -> BoardState {
+        let mut xs: u16 = 0b0_0000_0000;
+        let mut os: u16 = 0b0_0000_0000;
+
+        for i in 0..self.spaces.len() {
+            xs <<= 1;
+            os <<= 1;
+            match self.spaces[i] {
+                Piece::X => { xs ^= 0b0_0000_0001; },
+                Piece::O => { os ^= 0b0_0000_0001; },
+                Piece::Empty => { },
+            }
+            //println!("X: {:9b}", xs);
+            //println!("O: {:9b}", os);
+        }
+
+        for state in WIN_STATES {
+            if xs & state == state {
+                self.state = BoardState::Winner(Piece::X);
+
+                self.spaces = [Piece::X; 9];
+
+                return self.state;
+            }
+            if os & state == state {
+                self.state = BoardState::Winner(Piece::O);
+
+                self.spaces = [Piece::O; 9];
+
+                return self.state;
+            }
+        }
+
+        if xs | os == 0b1_1111_1111 {
+            self.state = BoardState::CatsGame;
+            return self.state;
+        }
+
+        return BoardState::InPlay;
+    }
 }
 
 impl UltimateBoard {
     pub fn new() -> Self {
         Self {
             active_board: BoardSelection::Unselected,
-            state: BoardState::InPlay,
             turn: Piece::X,
             boards: [
                 Board::new(),
@@ -115,7 +157,17 @@ impl UltimateBoard {
 
         if let BoardSelection::Selected(s) = board_index {
             if s > BOARD_LEN { return Err(UltiError::OutOfBoundsError); }
-            self.boards[s].active = true;
+
+            match self.boards[s].state {
+                BoardState::InPlay => {
+                    self.boards[s].active = true;
+                },
+                _ => {
+                    self.active_board = BoardSelection::Unselected;
+                    return Ok(());
+                },
+            }
+
         }
 
         self.active_board = board_index;
@@ -128,7 +180,7 @@ impl UltimateBoard {
     pub fn play(&mut self, space: usize) -> UltiResult<()> {
         if space > BOARD_LEN { return Err(UltiError::OutOfBoundsError); }
 
-        let mut index = 0;
+        let index;
 
         match self.active_board {
             BoardSelection::Unselected => { panic!("No board is active!"); },
@@ -148,6 +200,27 @@ impl UltimateBoard {
             Piece::O => Piece::X,
             _ => Piece::X,
         };
+    }
+
+    pub fn get_board_state(&self, index: usize) -> BoardState {
+        return self.boards[index].get_state();
+    }
+
+    pub fn win_check(&mut self) {
+        for board in &mut self.boards {
+            if let BoardState::InPlay = board.state {
+                board.win_check();
+            }
+        }
+
+        if let BoardSelection::Selected(index) = self.active_board {
+            match self.boards[index].state {
+                BoardState::InPlay => { },
+                _ => {
+                    self.focus(BoardSelection::Unselected).unwrap();
+                },
+            }
+        }
     }
 
     pub fn print(&self) {

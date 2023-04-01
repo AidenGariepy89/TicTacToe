@@ -55,8 +55,6 @@ fn test() {
 
     let mut ultiboard = UltimateBoard::new();
 
-    println!("{}", ultiboard.print());
-
     let selected = ultiboard.get_focus();
     match selected {
         BoardSelection::Unselected => println!("No selection!"),
@@ -64,7 +62,7 @@ fn test() {
     }
 
     ultiboard.focus(BoardSelection::Selected(1)).unwrap();
-    ultiboard.play(5, tictactoe::ultiboard::Piece::X).unwrap();
+    ultiboard.play(5).unwrap();
 
     let selected = ultiboard.get_focus();
     match selected {
