@@ -54,7 +54,6 @@ pub enum EndGame {
 
 pub struct Board {
     spaces: [Piece; 9],
-    inactive: bool,
 }
 
 impl Board {
@@ -71,7 +70,6 @@ impl Board {
                 Piece::Empty,
                 Piece::Empty,
             ],
-            inactive: true,
         };
     }
 
@@ -117,7 +115,7 @@ impl Board {
     }
 
     pub fn print(&self) {
-        let mut board_display = String::from(format!(
+        let board_display = String::from(format!(
             //"      1     2     3\n    _____ _____ _____\n   |     |     |     |\n a |  {}  |  {}  |  {}  |\n   |_____|_____|_____|\n   |     |     |     |\n b |  {}  |  {}  |  {}  |\n   |_____|_____|_____|\n   |     |     |     |\n c |  {}  |  {}  |  {}  |\n   |_____|_____|_____|\n",
             "      1     2     3\n                     \n         |     |     \n a    {}  |  {}  |  {}  \n    _____|_____|_____\n         |     |     \n b    {}  |  {}  |  {}  \n    _____|_____|_____\n         |     |     \n c    {}  |  {}  |  {}  \n         |     |     \n",
             self.spaces[0].to_char(),
@@ -130,10 +128,6 @@ impl Board {
             self.spaces[7].to_char(),
             self.spaces[8].to_char()
         ));
-
-        if self.inactive {
-            board_display = board_display.replace(' ', "#");
-        }
 
         println!("{board_display}");
     }

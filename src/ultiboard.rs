@@ -16,10 +16,10 @@ const WIN_STATES: [u16; 8] = [
 
 // Type Definitions
 
-struct UltimateBoard {
+pub struct UltimateBoard {
     boards: [Board; 9],
     state: BoardState,
-    active_board: i32,
+    active_board: BoardSelection,
 }
 
 struct Board {
@@ -29,7 +29,7 @@ struct Board {
 }
 
 #[derive(Clone, Copy)]
-enum Piece {
+pub enum Piece {
     X,
     O,
     Empty,
@@ -41,40 +41,28 @@ enum BoardState {
     CatsGame,
 }
 
-enum UltiError {
+pub enum BoardSelection {
+    Unselected,
+    Selected(usize),
+}
+
+#[derive(Debug)]
+pub enum UltiError {
     OutOfBoundsError,
     SpaceTakenError,
 }
 
-type UltiResult<T> = Result<T, UltiError>;
+pub type UltiResult<T> = Result<T, UltiError>;
 
 // Type Implementations
 
-impl UltimateBoard {
-    fn new() -> Self {
-        Self {
-            active_board: -1,
-            state: BoardState::InPlay,
-            boards: [
-                Board::new(),
-                Board::new(),
-                Board::new(),
-                Board::new(),
-                Board::new(),
-                Board::new(),
-                Board::new(),
-                Board::new(),
-                Board::new(),
-            ],
+impl Piece {
+    fn to_char(&self) -> char {
+        match self {
+            Piece::X => 'X',
+            Piece::O => 'O',
+            Piece::Empty => ' ',
         }
-    }
-
-    fn play(&mut self, space: usize, piece: Piece) -> UltiResult<()> {
-        if space > BOARD_LEN { return Err(UltiError::OutOfBoundsError); }
-        if self.active_board < 0 { panic!("No board is active!"); }
-        if self.active_board as usize > BOARD_LEN { panic!("Board does not exist!"); }
-
-        return self.boards[self.active_board as usize].play(space, piece);
     }
 }
 
@@ -99,3 +87,211 @@ impl Board {
     }
 }
 
+impl UltimateBoard {
+    pub fn new() -> Self {
+        Self {
+            active_board: BoardSelection::Unselected,
+            state: BoardState::InPlay,
+            boards: [
+                Board::new(),
+                Board::new(),
+                Board::new(),
+                Board::new(),
+                Board::new(),
+                Board::new(),
+                Board::new(),
+                Board::new(),
+                Board::new(),
+            ],
+        }
+    }
+
+    pub fn focus(&mut self, board_index: BoardSelection) -> UltiResult<()> {
+        if let BoardSelection::Selected(s) = self.active_board {
+            self.boards[s].active = false;
+        }
+
+        if let BoardSelection::Selected(s) = board_index {
+            if s > BOARD_LEN { return Err(UltiError::OutOfBoundsError); }
+            self.boards[s].active = true;
+        }
+
+        self.active_board = board_index;
+
+        return Ok(());
+    }
+
+    pub fn get_focus(&self) -> &BoardSelection { return &self.active_board; }
+
+    pub fn play(&mut self, space: usize, piece: Piece) -> UltiResult<()> {
+        if space > BOARD_LEN { return Err(UltiError::OutOfBoundsError); }
+
+        let mut index = 0;
+
+        match self.active_board {
+            BoardSelection::Unselected => { panic!("No board is active!"); },
+            BoardSelection::Selected(s) => {
+                index = s;
+            },
+        }
+
+        return self.boards[index].play(space, piece);
+    }
+
+    pub fn print(&self) {
+        println!(
+            "
+             ___________1___________ ___________2___________ ___________3___________ 
+            |   _____ _____ _____   |   _____ _____ _____   |   _____ _____ _____   |
+            |  |     |     |     |  |  |     |     |     |  |  |     |     |     |  |
+            |  |  {}  |  {}  |  {}  |  |  |  {}  |  {}  |  {}  |  |  |  {}  |  {}  |  {}  |  |
+            |  |_____|_____|_____|  |  |_____|_____|_____|  |  |_____|_____|_____|  |
+            |  |     |     |     |  |  |     |     |     |  |  |     |     |     |  |
+            A  |  {}  |  {}  |  {}  |  |  |  {}  |  {}  |  {}  |  |  |  {}  |  {}  |  {}  |  |
+            |  |_____|_____|_____|  |  |_____|_____|_____|  |  |_____|_____|_____|  |
+            |  |     |     |     |  |  |     |     |     |  |  |     |     |     |  |
+            |  |  {}  |  {}  |  {}  |  |  |  {}  |  {}  |  {}  |  |  |  {}  |  {}  |  {}  |  |
+            |  |_____|_____|_____|  |  |_____|_____|_____|  |  |_____|_____|_____|  |
+            |_______________________|_______________________|_______________________|
+            |   _____ _____ _____   |   _____ _____ _____   |   _____ _____ _____   |
+            |  |     |     |     |  |  |     |     |     |  |  |     |     |     |  |
+            |  |  {}  |  {}  |  {}  |  |  |  {}  |  {}  |  {}  |  |  |  {}  |  {}  |  {}  |  |
+            |  |_____|_____|_____|  |  |_____|_____|_____|  |  |_____|_____|_____|  |
+            |  |     |     |     |  |  |     |     |     |  |  |     |     |     |  |
+            B  |  {}  |  {}  |  {}  |  |  |  {}  |  {}  |  {}  |  |  |  {}  |  {}  |  {}  |  |
+            |  |_____|_____|_____|  |  |_____|_____|_____|  |  |_____|_____|_____|  |
+            |  |     |     |     |  |  |     |     |     |  |  |     |     |     |  |
+            |  |  {}  |  {}  |  {}  |  |  |  {}  |  {}  |  {}  |  |  |  {}  |  {}  |  {}  |  |
+            |  |_____|_____|_____|  |  |_____|_____|_____|  |  |_____|_____|_____|  |
+            |_______________________|_______________________|_______________________|
+            |   _____ _____ _____   |   _____ _____ _____   |   _____ _____ _____   |
+            |  |     |     |     |  |  |     |     |     |  |  |     |     |     |  |
+            |  |  {}  |  {}  |  {}  |  |  |  {}  |  {}  |  {}  |  |  |  {}  |  {}  |  {}  |  |
+            |  |_____|_____|_____|  |  |_____|_____|_____|  |  |_____|_____|_____|  |
+            |  |     |     |     |  |  |     |     |     |  |  |     |     |     |  |
+            C  |  {}  |  {}  |  {}  |  |  |  {}  |  {}  |  {}  |  |  |  {}  |  {}  |  {}  |  |
+            |  |_____|_____|_____|  |  |_____|_____|_____|  |  |_____|_____|_____|  |
+            |  |     |     |     |  |  |     |     |     |  |  |     |     |     |  |
+            |  |  {}  |  {}  |  {}  |  |  |  {}  |  {}  |  {}  |  |  |  {}  |  {}  |  {}  |  |
+            |  |_____|_____|_____|  |  |_____|_____|_____|  |  |_____|_____|_____|  |
+            |_______________________|_______________________|_______________________|
+            ",
+            self.boards[0].spaces[0].to_char(),
+            self.boards[0].spaces[1].to_char(),
+            self.boards[0].spaces[2].to_char(),
+            self.boards[1].spaces[0].to_char(),
+            self.boards[1].spaces[1].to_char(),
+            self.boards[1].spaces[2].to_char(),
+            self.boards[2].spaces[0].to_char(),
+            self.boards[2].spaces[1].to_char(),
+            self.boards[2].spaces[2].to_char(),
+            self.boards[0].spaces[3].to_char(),
+            self.boards[0].spaces[4].to_char(),
+            self.boards[0].spaces[5].to_char(),
+            self.boards[1].spaces[3].to_char(),
+            self.boards[1].spaces[4].to_char(),
+            self.boards[1].spaces[5].to_char(),
+            self.boards[2].spaces[3].to_char(),
+            self.boards[2].spaces[4].to_char(),
+            self.boards[2].spaces[5].to_char(),
+            self.boards[0].spaces[6].to_char(),
+            self.boards[0].spaces[7].to_char(),
+            self.boards[0].spaces[8].to_char(),
+            self.boards[1].spaces[6].to_char(),
+            self.boards[1].spaces[7].to_char(),
+            self.boards[1].spaces[8].to_char(),
+            self.boards[2].spaces[6].to_char(),
+            self.boards[2].spaces[7].to_char(),
+            self.boards[2].spaces[8].to_char(),
+            self.boards[3].spaces[0].to_char(),
+            self.boards[3].spaces[1].to_char(),
+            self.boards[3].spaces[2].to_char(),
+            self.boards[4].spaces[0].to_char(),
+            self.boards[4].spaces[1].to_char(),
+            self.boards[4].spaces[2].to_char(),
+            self.boards[5].spaces[0].to_char(),
+            self.boards[5].spaces[1].to_char(),
+            self.boards[5].spaces[2].to_char(),
+            self.boards[3].spaces[3].to_char(),
+            self.boards[3].spaces[4].to_char(),
+            self.boards[3].spaces[5].to_char(),
+            self.boards[4].spaces[3].to_char(),
+            self.boards[4].spaces[4].to_char(),
+            self.boards[4].spaces[5].to_char(),
+            self.boards[5].spaces[3].to_char(),
+            self.boards[5].spaces[4].to_char(),
+            self.boards[5].spaces[5].to_char(),
+            self.boards[3].spaces[6].to_char(),
+            self.boards[3].spaces[7].to_char(),
+            self.boards[3].spaces[8].to_char(),
+            self.boards[4].spaces[6].to_char(),
+            self.boards[4].spaces[7].to_char(),
+            self.boards[4].spaces[8].to_char(),
+            self.boards[5].spaces[6].to_char(),
+            self.boards[5].spaces[7].to_char(),
+            self.boards[5].spaces[8].to_char(),
+            self.boards[6].spaces[0].to_char(),
+            self.boards[6].spaces[1].to_char(),
+            self.boards[6].spaces[2].to_char(),
+            self.boards[7].spaces[0].to_char(),
+            self.boards[7].spaces[1].to_char(),
+            self.boards[7].spaces[2].to_char(),
+            self.boards[8].spaces[0].to_char(),
+            self.boards[8].spaces[1].to_char(),
+            self.boards[8].spaces[2].to_char(),
+            self.boards[6].spaces[3].to_char(),
+            self.boards[6].spaces[4].to_char(),
+            self.boards[6].spaces[5].to_char(),
+            self.boards[7].spaces[3].to_char(),
+            self.boards[7].spaces[4].to_char(),
+            self.boards[7].spaces[5].to_char(),
+            self.boards[8].spaces[3].to_char(),
+            self.boards[8].spaces[4].to_char(),
+            self.boards[8].spaces[5].to_char(),
+            self.boards[6].spaces[6].to_char(),
+            self.boards[6].spaces[7].to_char(),
+            self.boards[6].spaces[8].to_char(),
+            self.boards[7].spaces[6].to_char(),
+            self.boards[7].spaces[7].to_char(),
+            self.boards[7].spaces[8].to_char(),
+            self.boards[8].spaces[6].to_char(),
+            self.boards[8].spaces[7].to_char(),
+            self.boards[8].spaces[8].to_char(),
+            );
+    }
+}
+
+//            ______________________ ______________________ ______________________ 
+//           |   _____ _____ _____  |   _____ _____ _____  |   _____ _____ _____  |
+//           |  |     |     |     | |  |     |     |     | |  |     |     |     | |
+//           |  |     |     |     | |  |     |     |     | |  |     |     |     | |
+//           |  |_____|_____|_____| |  |_____|_____|_____| |  |_____|_____|_____| |
+//           |  |     |     |     | |  |     |     |     | |  |     |     |     | |
+//           |  |     |     |     | |  |     |     |     | |  |     |     |     | |
+//           |  |_____|_____|_____| |  |_____|_____|_____| |  |_____|_____|_____| |
+//           |  |     |     |     | |  |     |     |     | |  |     |     |     | |
+//           |  |     |     |     | |  |     |     |     | |  |     |     |     | |
+//           |  |_____|_____|_____| |  |_____|_____|_____| |  |_____|_____|_____| |
+//           |______________________|______________________|______________________|
+//           |   _____ _____ _____  |   _____ _____ _____  |   _____ _____ _____  |
+//           |  |     |     |     | |  |     |     |     | |  |     |     |     | |
+//           |  |     |     |     | |  |     |     |     | |  |     |     |     | |
+//           |  |_____|_____|_____| |  |_____|_____|_____| |  |_____|_____|_____| |
+//           |  |     |     |     | |  |     |     |     | |  |     |     |     | |
+//           |  |     |     |     | |  |     |     |     | |  |     |     |     | |
+//           |  |_____|_____|_____| |  |_____|_____|_____| |  |_____|_____|_____| |
+//           |  |     |     |     | |  |     |     |     | |  |     |     |     | |
+//           |  |     |     |     | |  |     |     |     | |  |     |     |     | |
+//           |  |_____|_____|_____| |  |_____|_____|_____| |  |_____|_____|_____| |
+//           |______________________|______________________|______________________|
+//           |   _____ _____ _____  |   _____ _____ _____  |   _____ _____ _____  |
+//           |  |     |     |     | |  |     |     |     | |  |     |     |     | |
+//           |  |     |     |     | |  |     |     |     | |  |     |     |     | |
+//           |  |_____|_____|_____| |  |_____|_____|_____| |  |_____|_____|_____| |
+//           |  |     |     |     | |  |     |     |     | |  |     |     |     | |
+//           |  |     |     |     | |  |     |     |     | |  |     |     |     | |
+//           |  |_____|_____|_____| |  |_____|_____|_____| |  |_____|_____|_____| |
+//           |  |     |     |     | |  |     |     |     | |  |     |     |     | |
+//           |  |     |     |     | |  |     |     |     | |  |     |     |     | |
+//           |  |_____|_____|_____| |  |_____|_____|_____| |  |_____|_____|_____| |
+//           |______________________|______________________|______________________|
