@@ -31,6 +31,11 @@ fn ultimate() {
 
     while let LoopState::Continue = result {
         result = ultigame::run(&mut board, turn.clone());
+        turn = match turn {
+            Piece::X => Piece::O,
+            Piece::O => Piece::X,
+            _ => Piece::X,
+        };
     }
 }
 
