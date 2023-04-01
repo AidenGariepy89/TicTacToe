@@ -26,16 +26,16 @@ pub fn run(board: &mut UltimateBoard) -> LoopState {
     clearscr!();
     println!("Welcome to {} Please input to make your move! {}", "Ultimate TicTacToe!".green().bold(), "'q' to quit".red());
 
-    board.print();
-
     match board.win_check() {
         BoardState::Winner(piece) => {
             match piece {
                 Piece::X => {
+                    board.print();
                     println!("{}", "X Wins!".purple().bold());
                     return LoopState::Exit;
                 },
                 Piece::O => {
+                    board.print();
                     println!("{}", "O Wins!".green().bold());
                     return LoopState::Exit;
                 },
@@ -48,6 +48,8 @@ pub fn run(board: &mut UltimateBoard) -> LoopState {
         },
         _ => { },
     }
+
+    board.print();
 
     match board.get_focus() {
         BoardSelection::Selected(index) => {

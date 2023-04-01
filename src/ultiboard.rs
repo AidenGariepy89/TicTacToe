@@ -113,6 +113,9 @@ impl Board {
                 Piece::O => { os ^= 0b0_0000_0001; },
                 Piece::Empty => { },
             }
+
+            //println!("X: 0b{:09b}", xs);
+            //println!("O: 0b{:09b}", os);
         }
 
         for state in WIN_STATES {
@@ -217,10 +220,13 @@ impl UltimateBoard {
     }
 
     pub fn win_check(&mut self) -> BoardState {
+        //let mut count = 0;
         for board in &mut self.boards {
             if let BoardState::InPlay = board.state {
+                //println!("checking board {}", count);
                 board.win_check();
             }
+            //count += 1;
         }
 
         if let BoardSelection::Selected(index) = self.active_board {
