@@ -1,11 +1,12 @@
-// Constants
-
 use colored::*;
 use std::fmt;
+
+// Constants
 
 // Starting at index 0
 pub const BOARD_LEN: usize = 8;
 pub const ROW_LEN: usize = 2;
+
 const WIN_STATES: [u16; 8] = [
     0b1_1100_0000,
     0b0_0011_1000,

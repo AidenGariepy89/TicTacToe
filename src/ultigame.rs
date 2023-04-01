@@ -56,7 +56,7 @@ pub fn run(board: &mut UltimateBoard) -> LoopState {
             println!("({}) {} {}", board.get_turn().to_colored_string(), "Current board:".green(), usize_to_notation(index.clone()));
         },
         BoardSelection::Unselected => {
-            println!("({}) {}\n", board.get_turn().to_colored_string(), "Select a board to play in.".magenta());
+            println!("({}) {}", board.get_turn().to_colored_string(), "Select a board to play in.".magenta());
             let input = get_input();
 
             if input.to_lowercase().trim() == "q" { return LoopState::Exit; }
