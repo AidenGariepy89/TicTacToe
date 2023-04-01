@@ -74,7 +74,6 @@ pub fn run(board: &mut UltimateBoard) -> LoopState {
         },
     }
 
-    //println!("Make your move, {}!", board.get_turn().to_char());
     let input = get_input();
 
     if input.trim() == "q" { return LoopState::Exit; }
