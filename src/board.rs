@@ -39,6 +39,7 @@ pub enum EndGame {
 
 pub struct Board {
     spaces: [Piece; 9],
+    turn: Piece,
 }
 
 impl Board {
@@ -55,17 +56,18 @@ impl Board {
                 Piece::Empty,
                 Piece::Empty,
             ],
+            turn: Piece::X,
         };
     }
 
-    pub fn play(&mut self, space: usize, piece: Piece) -> Result<(), BoardError> {
+    pub fn play(&mut self, space: usize) -> Result<(), BoardError> {
         if space > BOARD_LEN {
             return Err(BoardError::OutOfBoundsError);
         };
 
         match &self.spaces[space] {
             Piece::Empty => {
-                self.spaces[space] = piece;
+                self.spaces[space] = self.turn;
             }
             _ => {
                 return Err(BoardError::SpaceTakenError);
@@ -73,6 +75,16 @@ impl Board {
         }
 
         return Ok(());
+    }
+
+    pub fn get_turn(&self) -> Piece { self.turn }
+
+    pub fn next_turn(&mut self) {
+        match self.turn {
+            Piece::X => { self.turn = Piece::O; },
+            Piece::O => { self.turn = Piece::X; },
+            Piece::Empty => { },
+        }
     }
 
     pub fn win_check(&self) -> EndGame {
@@ -102,7 +114,7 @@ impl Board {
     pub fn print(&self) {
         let board_display = String::from(format!(
             //"      1     2     3\n    _____ _____ _____\n   |     |     |     |\n a |  {}  |  {}  |  {}  |\n   |_____|_____|_____|\n   |     |     |     |\n b |  {}  |  {}  |  {}  |\n   |_____|_____|_____|\n   |     |     |     |\n c |  {}  |  {}  |  {}  |\n   |_____|_____|_____|\n",
-            "      1     2     3\n                     \n         |     |     \n a    {}  |  {}  |  {}  \n    _____|_____|_____\n         |     |     \n b    {}  |  {}  |  {}  \n    _____|_____|_____\n         |     |     \n c    {}  |  {}  |  {}  \n         |     |     \n",
+            "      1     2     3\n                     \n         |     |     \n A    {}  |  {}  |  {}  \n    _____|_____|_____\n         |     |     \n B    {}  |  {}  |  {}  \n    _____|_____|_____\n         |     |     \n C    {}  |  {}  |  {}  \n         |     |     \n",
             self.spaces[0].to_colored_string(),
             self.spaces[1].to_colored_string(),
             self.spaces[2].to_colored_string(),

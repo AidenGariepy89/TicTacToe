@@ -2,7 +2,7 @@ use tictactoe::{
     basic_game,
     board::Board,
     ultigame,
-    ultiboard::UltimateBoard, input::get_input, utils::{LoopState, Piece}, cubegame::{cubeboard::CubeBoard, self},
+    ultiboard::UltimateBoard, input::get_input, utils::LoopState, cubegame::{cubeboard::CubeBoard, self},
 };
 
 enum Game {
@@ -48,15 +48,9 @@ fn ultimate() {
 fn tictactoe() {
     let mut board = Board::new();
     let mut result = LoopState::Continue;
-    let mut turn = Piece::X;
 
     while let LoopState::Continue = result {
-        result = basic_game::run(&mut board, turn.clone());
-        turn = match turn {
-            Piece::X => Piece::O,
-            Piece::O => Piece::X,
-            _ => Piece::X,
-        };
+        result = basic_game::run(&mut board);
     }
 }
 

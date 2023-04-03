@@ -2,6 +2,7 @@ use std::fmt;
 use crate::board::{Board, EndGame};
 use crate::input::get_input;
 use crate::utils::{LoopState, Piece};
+use colored::*;
 
 #[derive(Debug)]
 enum GameError {
@@ -18,7 +19,7 @@ impl fmt::Display for GameError {
 
 type GameResult<T> = Result<T, GameError>;
 
-pub fn run(board: &mut Board, turn: Piece) -> LoopState {
+pub fn run(board: &mut Board) -> LoopState {
     clearscr!();
     println!("Welcome to TicTacToe! Please input to make your move! 'q' to quit\n");
 
@@ -28,22 +29,24 @@ pub fn run(board: &mut Board, turn: Piece) -> LoopState {
         EndGame::Winner(winner) => {
             match winner {
                 Piece::X => {
-                    println!("X wins!");
+                    println!("{}", "X wins!".purple().bold());
                     return LoopState::Exit;
                 },
                 Piece::O => {
-                    println!("O wins!");
+                    println!("{}", "O wins!".purple().bold());
                     return LoopState::Exit;
                 },
                 _ => { },
             }
         },
         EndGame::CatsGame => {
-            println!("Cat's game!");
+            println!("{}", "Cat's Game!".red().bold());
             return LoopState::Exit;
         },
         _ => { },
     }
+
+    println!("({}) Make your move!", board.get_turn().to_colored_string());
 
     let input = get_input();
 
@@ -51,7 +54,14 @@ pub fn run(board: &mut Board, turn: Piece) -> LoopState {
 
     match notation_to_index(input.trim()) {
         Ok(index) => {
-            board.play(index, turn).unwrap_or_else(|error| { println!("{} Press 'Enter' to continue.", error); });
+            if let Err(error) = board.play(index) {
+                println!("{} Press 'Enter' to continue.", error); 
+
+                #[allow(unused_variables)]
+                let input = get_input();
+
+                return LoopState::Continue;
+            }
         },
         Err(error) => {
             println!("{} Press 'Enter' to continue.", error);
@@ -62,6 +72,8 @@ pub fn run(board: &mut Board, turn: Piece) -> LoopState {
             return LoopState::Continue;
         },
     }
+
+    board.next_turn();
 
     return LoopState::Continue;
 }
