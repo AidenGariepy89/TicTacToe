@@ -1,6 +1,4 @@
-use colored::*;
 use std::fmt;
-
 use crate::utils::Piece;
 
 // Constants

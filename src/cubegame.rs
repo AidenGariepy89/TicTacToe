@@ -1,6 +1,8 @@
-use crate::{utils::LoopState, input::get_input};
+use crate::{utils::{LoopState, Piece}, input::get_input};
 use self::cubeboard::CubeBoard;
 use std::fmt;
+
+use colored::*;
 
 pub mod cubeboard;
 
@@ -22,6 +24,20 @@ impl fmt::Display for GameError {
 pub fn run(board: &mut CubeBoard) -> LoopState {
     clearscr!();
 
+    match board.win_check() {
+        Piece::X => {
+            board.print();
+            println!("{}", "X Wins!".purple().bold());
+            return LoopState::Exit;
+        },
+        Piece::O => {
+            board.print();
+            println!("{}", "O Wins!".purple().bold());
+            return LoopState::Exit;
+        },
+        Piece::Empty => { },
+    }
+
     board.print();
 
     println!("({}) Make your move! (Example move: xa1 - moves to layer x, row a, and column 1)", board.get_turn().to_colored_string());
@@ -39,7 +55,7 @@ pub fn run(board: &mut CubeBoard) -> LoopState {
                 #[allow(unused_variables)]
                 let input = get_input();
 
-                return LoopState::Exit;
+                return LoopState::Continue;
             }
         },
         Err(error) => {
