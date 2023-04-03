@@ -1,6 +1,8 @@
 use colored::*;
 use std::fmt;
 
+use crate::utils::Piece;
+
 // Constants
 
 // Starting at index 0
@@ -33,13 +35,6 @@ struct Board {
 }
 
 #[derive(Clone, Copy)]
-pub enum Piece {
-    X,
-    O,
-    Empty,
-}
-
-#[derive(Clone, Copy)]
 pub enum BoardState {
     InPlay,
     Winner(Piece),
@@ -66,16 +61,6 @@ impl fmt::Display for UltiError {
         match self {
             UltiError::SpaceTakenError => write!(f, "There is already a piece there!"),
             UltiError::OutOfBoundsError => write!(f, "That space does not exist!"),
-        }
-    }
-}
-
-impl Piece {
-    pub fn to_colored_string(&self) -> ColoredString {
-        match self {
-            Piece::X => "X".bright_red(),
-            Piece::O => "O".green(),
-            Piece::Empty => " ".normal(),
         }
     }
 }

@@ -3,7 +3,7 @@ use tictactoe::{
     board,
     board::Board,
     ultigame,
-    ultiboard::UltimateBoard, input::get_input,
+    ultiboard::UltimateBoard, input::get_input, utils::{LoopState, Piece},
 };
 
 enum Game {
@@ -13,6 +13,10 @@ enum Game {
 }
 
 fn main() {
+    let mut test = tictactoe::cubegame::cubeboard::CubeBoard::new();
+    test.print();
+    test.play(1, 5, Piece::X).unwrap();
+    test.print();
     loop {
         let mut game = Game::NoGame;
 
@@ -35,10 +39,8 @@ fn main() {
 }
 
 fn ultimate() {
-    use ultigame::LoopState;
-
     let mut board = UltimateBoard::new();
-    let mut result = ultigame::LoopState::Continue;
+    let mut result = LoopState::Continue;
 
     while let LoopState::Continue = result {
         result = ultigame::run(&mut board);
@@ -46,9 +48,6 @@ fn ultimate() {
 }
 
 fn tictactoe() {
-    use board::Piece;
-    use basic_game::LoopState;
-
     let mut board = Board::new();
     let mut result = LoopState::Continue;
     let mut turn = Piece::X;

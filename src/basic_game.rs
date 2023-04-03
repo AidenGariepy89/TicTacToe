@@ -1,6 +1,7 @@
 use std::fmt;
-use crate::board::{Board, Piece, EndGame};
+use crate::board::{Board, EndGame};
 use crate::input::get_input;
+use crate::utils::{LoopState, Piece};
 
 #[derive(Debug)]
 enum GameError {
@@ -16,11 +17,6 @@ impl fmt::Display for GameError {
 }
 
 type GameResult<T> = Result<T, GameError>;
-
-pub enum LoopState {
-    Continue,
-    Exit,
-}
 
 pub fn run(board: &mut Board, turn: Piece) -> LoopState {
     clearscr!();
@@ -85,11 +81,4 @@ fn notation_to_index(input: &str) -> GameResult<usize> {
     let index = (row * 3) + col;
     return Ok(index);
 }
-
-//fn get_input(input: &mut String) -> GameResult<()> {
-//    if let Err(_) = std::io::stdin().read_line(input) {
-//        return Err(GameError::InputFailedError);
-//    }
-//    return Ok(());
-//}
 

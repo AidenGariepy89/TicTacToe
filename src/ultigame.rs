@@ -1,11 +1,6 @@
-use crate::{ultiboard::{UltimateBoard, BoardSelection, self, BoardState, Piece}, input::get_input};
+use crate::{ultiboard::{UltimateBoard, BoardSelection, self, BoardState}, input::get_input, utils::{LoopState, Piece}};
 use std::fmt;
 use colored::*;
-
-pub enum LoopState {
-    Continue,
-    Exit,
-}
 
 type GameResult<T> = Result<T, GameError>;
 

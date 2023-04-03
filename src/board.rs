@@ -1,5 +1,7 @@
 use std::fmt;
 
+use crate::utils::Piece;
+
 // Starting at index 0
 pub const BOARD_LEN: usize = 8;
 pub const ROW_LEN: usize = 2;
@@ -26,23 +28,6 @@ impl fmt::Display for BoardError {
             BoardError::SpaceTakenError => write!(f, "This space is already occupied!"),
             BoardError::OutOfBoundsError => write!(f, "That space does not exist!"),
         }
-    }
-}
-
-#[derive(Clone)]
-pub enum Piece {
-    X,
-    O,
-    Empty,
-}
-
-impl Piece {
-    fn to_char(&self) -> char {
-        return match self {
-            Piece::X => 'X',
-            Piece::O => 'O',
-            Piece::Empty => ' ',
-        };
     }
 }
 
@@ -118,15 +103,15 @@ impl Board {
         let board_display = String::from(format!(
             //"      1     2     3\n    _____ _____ _____\n   |     |     |     |\n a |  {}  |  {}  |  {}  |\n   |_____|_____|_____|\n   |     |     |     |\n b |  {}  |  {}  |  {}  |\n   |_____|_____|_____|\n   |     |     |     |\n c |  {}  |  {}  |  {}  |\n   |_____|_____|_____|\n",
             "      1     2     3\n                     \n         |     |     \n a    {}  |  {}  |  {}  \n    _____|_____|_____\n         |     |     \n b    {}  |  {}  |  {}  \n    _____|_____|_____\n         |     |     \n c    {}  |  {}  |  {}  \n         |     |     \n",
-            self.spaces[0].to_char(),
-            self.spaces[1].to_char(),
-            self.spaces[2].to_char(),
-            self.spaces[3].to_char(),
-            self.spaces[4].to_char(),
-            self.spaces[5].to_char(),
-            self.spaces[6].to_char(),
-            self.spaces[7].to_char(),
-            self.spaces[8].to_char()
+            self.spaces[0].to_colored_string(),
+            self.spaces[1].to_colored_string(),
+            self.spaces[2].to_colored_string(),
+            self.spaces[3].to_colored_string(),
+            self.spaces[4].to_colored_string(),
+            self.spaces[5].to_colored_string(),
+            self.spaces[6].to_colored_string(),
+            self.spaces[7].to_colored_string(),
+            self.spaces[8].to_colored_string()
         ));
 
         println!("{board_display}");
