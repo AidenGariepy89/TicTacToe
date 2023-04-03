@@ -1,38 +1,36 @@
 use tictactoe::{
     basic_game,
-    board,
     board::Board,
     ultigame,
-    ultiboard::UltimateBoard, input::get_input, utils::{LoopState, Piece},
+    ultiboard::UltimateBoard, input::get_input, utils::{LoopState, Piece}, cubegame::{cubeboard::CubeBoard, self},
 };
 
 enum Game {
     TicTacToe,
     Ultimate,
+    Cube,
     NoGame,
 }
 
 fn main() {
-    let mut test = tictactoe::cubegame::cubeboard::CubeBoard::new();
-    test.print();
-    test.play(1, 5, Piece::X).unwrap();
-    test.print();
     loop {
         let mut game = Game::NoGame;
 
-        println!("Would you like to play 'n'ormal TicTacToe, or 'u'ltimate TicTacToe?");
+        println!("Would you like to play 'n'ormal TicTacToe, 'u'ltimate TicTacToe, or '3'D TicTacToe?");
         let input = get_input().to_lowercase();
         let input = input.trim();
 
         match input {
             "n" => { game = Game::TicTacToe; },
             "u" => { game = Game::Ultimate; },
+            "3" => { game = Game::Cube; },
             _ => { },
         }
 
         match game {
             Game::TicTacToe => { tictactoe(); },
             Game::Ultimate => { ultimate(); },
+            Game::Cube => { cube(); },
             Game::NoGame => { break; }
         }
     }
@@ -59,6 +57,15 @@ fn tictactoe() {
             Piece::O => Piece::X,
             _ => Piece::X,
         };
+    }
+}
+
+fn cube() {
+    let mut board = CubeBoard::new();
+    let mut result = LoopState::Continue;
+
+    while let LoopState::Continue = result {
+        result = cubegame::run(&mut board);
     }
 }
 

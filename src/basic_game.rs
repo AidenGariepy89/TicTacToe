@@ -51,10 +51,10 @@ pub fn run(board: &mut Board, turn: Piece) -> LoopState {
 
     match notation_to_index(input.trim()) {
         Ok(index) => {
-            board.play(index, turn).unwrap_or_else(|error| { println!("{}", error); });
+            board.play(index, turn).unwrap_or_else(|error| { println!("{} Press 'Enter' to continue.", error); });
         },
         Err(error) => {
-            println!("{}", error);
+            println!("{} Press 'Enter' to continue.", error);
 
             #[allow(unused_variables)]
             let input = get_input();

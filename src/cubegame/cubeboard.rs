@@ -1,4 +1,3 @@
-use colored::*;
 use std::fmt;
 
 use crate::utils::Piece;
@@ -13,6 +12,7 @@ pub const ROW_LEN: usize = 2;
 
 pub struct CubeBoard {
     layers: [Board; 3],
+    turn: Piece,
 }
 
 struct Board {
@@ -27,6 +27,14 @@ pub enum CubeError {
 }
 
 // Type Implementations
+  
+impl fmt::Display for CubeError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            CubeError::SpaceTakenError => write!(f, "Space already taken!"),
+        }
+    }
+}
 
 impl Board {
     fn new() -> Self {
@@ -51,49 +59,60 @@ impl CubeBoard {
     pub fn new() -> Self {
         Self {
             layers: [Board::new(), Board::new(), Board::new()],
+            turn: Piece::X,
         }
     }
 
-    pub fn play(&mut self, layer: usize, index: usize, piece: Piece) -> CubeResult<()> {
+    pub fn play(&mut self, layer: usize, index: usize) -> CubeResult<()> {
         assert!(layer < 3);
 
-        self.layers[layer].play(index, piece)?;
+        self.layers[layer].play(index, self.turn)?;
 
         return Ok(());
+    }
+
+    pub fn get_turn(&self) -> Piece { self.turn }
+
+    pub fn next_turn(&mut self) {
+        match self.turn {
+            Piece::X => { self.turn = Piece::O; },
+            Piece::O => { self.turn = Piece::X; },
+            Piece::Empty => { },
+        }
     }
 
     pub fn print(&self) {
         println!(
             "
- ________________________
+ ____1_______2_______3___
  \\       \\       \\       \\
- |\\   {}   \\   {}   \\   {}   \\
+ |A   {}   \\   {}   \\   {}   \\
  | \\_______\\_______\\_______\\
  |  \\       \\       \\       \\
- |   \\   {}   \\   {}   \\   {}   \\  
+ |   B   {}   \\   {}   \\   {}   \\ X 
  |    \\_______\\_______\\_______\\ 
  |     \\       \\       \\       \\
- |      \\   {}   \\   {}   \\   {}   \\
+ |      C   {}   \\   {}   \\   {}   \\
  |       \\_______\\_______\\_______\\
- |_______|______________|        |
+ |___1___|___2_______3__|        |
  \\       |       \\       \\       |
- |\\   {}  |\\   {}   \\   {}   \\      |
+ |A   {}  |\\   {}   \\   {}   \\      |
  | \\_____|_\\_______\\_______\\     |
  |  \\    |  \\       \\       \\    |
- |   \\   {}   \\   {}   \\   {}   \\   |
+ |   B   {}   \\   {}   \\   {}   \\ Y |
  |    \\__|____\\_______\\_______\\  |
  |     \\ |     \\       \\       \\ |
- |      \\|  {}   \\   {}   \\   {}   \\|
+ |      C|  {}   \\   {}   \\   {}   \\|
  |       |_______\\_______\\_______|
- |_______|______________|        | 
+ |___1___|___2_______3__|        | 
  \\       |       \\       \\       | 
-  \\   {}  |\\   {}   \\   {}   \\      | 
+  A   {}  |\\   {}   \\   {}   \\      | 
    \\_____|_\\_______\\_______\\     | 
     \\    |  \\       \\       \\    |
-     \\   {}   \\   {}   \\   {}   \\   |
+     B   {}   \\   {}   \\   {}   \\ Z |
       \\__|____\\_______\\_______\\  |
        \\ |     \\       \\       \\ |
-        \\|  {}   \\   {}   \\   {}   \\|
+        C|  {}   \\   {}   \\   {}   \\|
          |_______\\_______\\_______|
          ",
          self.layers[0].spaces[0].to_colored_string(),

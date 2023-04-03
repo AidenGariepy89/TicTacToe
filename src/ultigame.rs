@@ -61,7 +61,7 @@ pub fn run(board: &mut UltimateBoard) -> LoopState {
                     board.focus(BoardSelection::Selected(index)).unwrap();
                 },
                 Err(error) => {
-                    println!("{}", error);
+                    println!("{} Press 'Enter' to continue.", error);
 
                     #[allow(unused_variables)]
                     let input = get_input();
@@ -78,7 +78,7 @@ pub fn run(board: &mut UltimateBoard) -> LoopState {
     match notation_to_usize(&input) {
         Ok(index) => {
             if let Err(error) = board.play(index) {
-                println!("{}", error);
+                println!("{} Press 'Enter' to continue.", error);
 
                 #[allow(unused_variables)]
                 let input = get_input();
@@ -93,7 +93,7 @@ pub fn run(board: &mut UltimateBoard) -> LoopState {
             }
         }
         Err(error) => {
-            println!("{}", error);
+            println!("{} Press 'Enter' to continue.", error);
 
             #[allow(unused_variables)]
             let input = get_input();
